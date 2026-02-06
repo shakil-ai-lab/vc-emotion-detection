@@ -63,7 +63,14 @@ def load_params(param_path='params.yaml'):
         logger.info(f"Loading parameters from {param_path}")
         with open(param_path, 'r') as file:
             params = yaml.safe_load(file)
-            test_size = params['data_ingestion']['test_size']
+        
+        # Validate that params is not None or empty
+        if params is None:
+            logger.error(f"params.yaml is empty or contains no valid YAML content")
+            raise ValueError(f"params.yaml is empty or contains no valid YAML content at {param_path}")
+        
+        logger.debug(f"Raw params loaded: {params}")
+        test_size = params['data_ingestion']['test_size']
         logger.debug(f"Successfully loaded test_size: {test_size}")
         return test_size
 
