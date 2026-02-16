@@ -139,7 +139,7 @@ def main():
         logger.debug(f"Model parameters: {params}")
 
         logger.info("Loading training data")
-        train_data = load_data('./data/processed/train_tfidf.csv')
+        train_data = load_data('./data/processed/train_bow.csv')
         X_train = train_data.iloc[:, :-1].values
         y_train = train_data.iloc[:, -1].values
         logger.info(f"Training data extracted. Features: {X_train.shape[1]}, Samples: {X_train.shape[0]}")

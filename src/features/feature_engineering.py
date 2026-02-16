@@ -5,6 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import yaml
 import logging
 from logging.handlers import RotatingFileHandler
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 # >>>>>>>  Set up logging <<<<<
@@ -90,11 +91,11 @@ def load_data(file_path: str) -> pd.DataFrame:
         logger.error(f'Unexpected error occurred while loading data from {file_path}: {e}', exc_info=True)
         raise
 
-def apply_tfidf(train_data: pd.DataFrame, test_data: pd.DataFrame, max_features: int) -> tuple:
-    """Apply TfIdf to the data."""
+def apply_bow(train_data: pd.DataFrame, test_data: pd.DataFrame, max_features: int) -> tuple:
+    """Apply Bag of Words to the data."""
     try:
-        logger.info(f"Applying TF-IDF vectorization with max_features={max_features}")
-        vectorizer = TfidfVectorizer(max_features=max_features)
+        logger.info(f"Applying Bag of Words vectorization with max_features={max_features}")
+        vectorizer = CountVectorizer(max_features=max_features)
 
         X_train = train_data['content'].values
         y_train = train_data['sentiment'].values
@@ -105,7 +106,7 @@ def apply_tfidf(train_data: pd.DataFrame, test_data: pd.DataFrame, max_features:
 
         X_train_bow = vectorizer.fit_transform(X_train)
         X_test_bow = vectorizer.transform(X_test)
-        logger.debug(f"TF-IDF vectorization completed. Train matrix shape: {X_train_bow.shape}, Test matrix shape: {X_test_bow.shape}")
+        logger.debug(f"Bag of Words vectorization completed. Train matrix shape: {X_train_bow.shape}, Test matrix shape: {X_test_bow.shape}")
 
         train_df = pd.DataFrame(X_train_bow.toarray())
         train_df['label'] = y_train
@@ -113,10 +114,10 @@ def apply_tfidf(train_data: pd.DataFrame, test_data: pd.DataFrame, max_features:
         test_df = pd.DataFrame(X_test_bow.toarray())
         test_df['label'] = y_test
 
-        logger.info(f'TF-IDF transformation completed. Train DF shape: {train_df.shape}, Test DF shape: {test_df.shape}')
+        logger.info(f'Bag of Words transformation completed. Train DF shape: {train_df.shape}, Test DF shape: {test_df.shape}')
         return train_df, test_df
     except Exception as e:
-        logger.error(f'Error during TF-IDF transformation: {e}', exc_info=True)
+        logger.error(f'Error during Bag of Words transformation: {e}', exc_info=True)
         raise
 
 def save_data(df: pd.DataFrame, file_path: str) -> None:
@@ -146,12 +147,12 @@ def main():
         train_data = load_data('./data/interim/train_processed.csv')
         test_data = load_data('./data/interim/test_processed.csv')
 
-        logger.info("Applying TF-IDF vectorization")
-        train_df, test_df = apply_tfidf(train_data, test_data, max_features)
+        logger.info("Applying Bag of Words vectorization")
+        train_df, test_df = apply_bow(train_data, test_data, max_features)
 
         logger.info("Saving processed data")
-        save_data(train_df, os.path.join("./data", "processed", "train_tfidf.csv"))
-        save_data(test_df, os.path.join("./data", "processed", "test_tfidf.csv"))
+        save_data(train_df, os.path.join("./data", "processed", "train_bow.csv"))
+        save_data(test_df, os.path.join("./data", "processed", "test_bow.csv"))
         
         logger.info("="*50)
         logger.info("✅ Feature engineering pipeline completed successfully")
